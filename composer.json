@@ -1,0 +1,12 @@
+{
+    "name": "ondrejhenek/faculty",
+    "description": "A library for easier communication with STAG - university system",
+    "keywords": ["university", "login", "Czech"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ondrej Henek"
+        }
+    ]
+}
