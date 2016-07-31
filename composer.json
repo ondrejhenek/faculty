@@ -8,5 +8,10 @@
         {
             "name": "Ondrej Henek"
         }
-    ]
+    ],
+    "autoload": {
+        "psr-4": {
+            "Faculty\\": ""
+        }
+    }
 }
