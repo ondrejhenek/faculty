@@ -1,13 +1,11 @@
 <?php
 namespace Faculty;
 
-use Faculty;
-
 /**
  * 
  *
  */
-class Stag extends Faculty
+class Stag
 {
 
 	protected function loginUrl ($redirectUrl)
