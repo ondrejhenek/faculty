@@ -19,7 +19,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Faculty\\Test\\": "test",
+            "Faculty\\Test\\": "test"
         }
     }
 }
