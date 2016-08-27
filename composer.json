@@ -9,9 +9,17 @@
             "name": "Ondrej Henek"
         }
     ],
+    "require-dev": {
+        "phpunit/phpunit": "*"
+    },
     "autoload": {
         "psr-4": {
             "Faculty\\": ""
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Faculty\\Test\\": "test",
         }
     }
 }
