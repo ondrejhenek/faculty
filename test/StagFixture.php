@@ -1,6 +1,6 @@
 <?php
 
-$fixture['getIdentityByTicket']['student'] =
+$fixture['getIdentitiesByTicket']['student'] =
 [
 	[
 		'userName' => 'F14572',
@@ -17,7 +17,7 @@ $fixture['getIdentityByTicket']['student'] =
 		'aktivni' => 'A',
 	]
 ];
-$fixture['getIdentityByTicket']['teacher'] =
+$fixture['getIdentitiesByTicket']['teacher'] =
 [
 	[
 		'userName' => 'BUBELOVA',
@@ -34,6 +34,35 @@ $fixture['getIdentityByTicket']['teacher'] =
 		'katedra' => 'KTP',
 		'ucitIdno' => '1083',
 	]
+];
+$fixture['getIdentitiesByTicket']['alien'] =
+[
+	[
+		'userName' => 'ALIEN',
+		'role' => 'XX',
+		'roleNazev' => 'Alien role',
+	]
+];
+$fixture['getIdentitiesByTicket']['foreignStudent'] =
+[
+	[
+		'userName' => 'F14572',
+		'role' => 'ST',
+		'roleNazev' => 'Student',
+		'fakulta' => 'FIF',
+		'aktivni' => 'A',
+	],
+];
+
+$fixture['getIdentity']['teacher'] = [
+	'id' => 'BUBELOVA',
+	'role' => 'VY',
+	'ucitidno' => '1083'
+];
+$fixture['getIdentity']['student'] = [
+	'id' => 'janija02',
+	'role' => 'ST',
+	'ucitidno' => null
 ];
 
 $fixture['getCoursesForStudent'] =
@@ -125,7 +154,7 @@ $fixture['getFields'] =
 
 $fixture['getPrograms'] =
 [
-	]
+	[
 	    'stprIdno' => 861,
 	    'nazev' => 'Politologie',
 	    'kod' => 'N6701',
@@ -228,3 +257,5 @@ $fixture['getTeacherInfoByUcitidno'] =
 ];
 
 $fixture['sendLogin'] = '9d71b76b05acda8963b93cc9f85fddf6734a4941343a6d7567fc6cff14cfe7de';
+
+return $fixture;

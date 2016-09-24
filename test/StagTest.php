@@ -12,6 +12,7 @@ class StagTest extends TestCase
 
 	private $login = 'janija02';
 	private $userName = 'F14572';
+    // private $userName = 'P15274' // kdosi z pravniku
 	private $password = '';
 	private $role = 'ST'; // or VY
 	private $year = '2016';
@@ -25,6 +26,7 @@ class StagTest extends TestCase
 	public function setUp()
 	{
         $this->Stag = new Stag();
+        $this->StagFixture = require __DIR__ . '/StagFixture.php';
 	}
 
     public function testGetAcademicYear()
@@ -47,6 +49,8 @@ class StagTest extends TestCase
         $result = $this->Stag->getSemester('2016-08-01');
         $this->assertEquals('ZS', $result);
 
+        $result = $this->Stag->getSemester('2016-12-24');
+        $this->assertEquals('ZS', $result);
     }
 
     public function testSendLoginFail()
@@ -70,9 +74,9 @@ class StagTest extends TestCase
 	/**
      * @depends testSendLoginSucc
      */
-    public function testGetIdentityByTicketStudent($ticket)
+    public function testGetIdentitiesByTicketStudent($ticket)
     {
-    	$result = $this->Stag->getIdentityByTicket($ticket);
+    	$result = $this->Stag->getIdentitiesByTicket($ticket);
     	$this->assertEquals(1, count($result));
     	$this->assertArraySubset(['userName' => $this->userName, 'role' => $this->role], $result[0]);
     }
@@ -130,14 +134,14 @@ class StagTest extends TestCase
 
     public function testGetCoursesForStudentSucc()
     {
-    	$result = $this->Stag->getCoursesForStudent($this->userName, $this->semester);
+    	$result = $this->Stag->getCoursesForStudent($this->userName, $this->Stag->getSemester());
     	$this->assertNotNull($result);
     	$this->assertArrayHasKey('zkratka', $result[0]);
     }
 
     public function testGetCoursesForStudentFail()
     {
-    	$result = $this->Stag->getCoursesForStudent($this->failing, $this->failing);
+    	$result = $this->Stag->getCoursesForStudent($this->failing, $this->semester);
     	$this->assertEmpty($result);
     }
 
@@ -167,6 +171,42 @@ class StagTest extends TestCase
     {
     	$result = $this->Stag->getFields($this->failing);
     	$this->assertEmpty($result);
+    }
+
+    public function testGetIdentityStudent()
+    {
+        $result = $this->Stag->getIdentity($this->StagFixture['getIdentitiesByTicket']['student'], 'P');
+
+        $this->assertEquals([
+            'id' => $this->StagFixture['getIdentitiesByTicket']['student'][1]['userName'],
+            'role' => $this->StagFixture['getIdentitiesByTicket']['student'][1]['role'],
+            'ucitidno' => false
+        ], $result);
+    }
+
+    public function testGetIdentityTeacher()
+    {
+        $result = $this->Stag->getIdentity($this->StagFixture['getIdentitiesByTicket']['teacher'], 'P');
+
+        $this->assertEquals([
+            'id' => $this->StagFixture['getIdentitiesByTicket']['teacher'][0]['userName'],
+            'role' => $this->StagFixture['getIdentitiesByTicket']['teacher'][0]['role'],
+            'ucitidno' => $this->StagFixture['getIdentitiesByTicket']['teacher'][0]['ucitIdno']
+        ], $result);
+    }
+
+    public function testGetIdentityAlien()
+    {
+        $result = $this->Stag->getIdentity($this->StagFixture['getIdentitiesByTicket']['alien'], 'P');
+
+        $this->assertEquals(false, $result);
+    }
+
+    public function testGetIdentityForeignStudent()
+    {
+        $result = $this->Stag->getIdentity($this->StagFixture['getIdentitiesByTicket']['foreignStudent'], 'P');
+
+        $this->assertEquals(false, $result);
     }
 
 

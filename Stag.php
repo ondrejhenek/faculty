@@ -45,7 +45,7 @@ class Stag
 	 * Sends login info, checks ticket and responds with $user
 	 * Could be redesigned to user only cookie ticket!!!
 	 */
-	static public function sendLogin ($data, $debug = false)
+	public function sendLogin ($data, $debug = false)
 	{
 		$url = self::loginUrl('http://www.entoo.cz');
         $data = array('username' => $data['username'], 'password' => $data['password'], 'submit' => 'Přihlásit se', 'loginMethod' => 'jaas', 'originalURL' => 'http://www.entoo.cz');
@@ -84,7 +84,7 @@ class Stag
 
 
 
-	static public function getIdentityByTicket($stagUserTicket) {
+	public function getIdentitiesByTicket($stagUserTicket) {
 		$result = file_get_contents('https://stagservices.upol.cz/ws/services/rest/help/getStagUserListForLoginTicket?ticket='. $stagUserTicket .'&outputFormat=JSON');
 		return json_decode($result, true)[0]['stagUserInfo'];
 	}
@@ -95,7 +95,7 @@ class Stag
 	*
 	* returns null if failure
 	**/
-	static public function getStudentInfoByOsobniCislo($osobniCislo, $academicYear, $ticket = null) {
+	public function getStudentInfoByOsobniCislo($osobniCislo, $academicYear, $ticket = null) {
 
 		if (empty($academicYear)) {
 			$academicYear = $this->getAcademicYear();
@@ -135,7 +135,7 @@ class Stag
 *     'url' => NULL,
 *  }
 **/
-	static public function getTeacherInfoByUcitidno ($ucitidno) {
+	public function getTeacherInfoByUcitidno ($ucitidno) {
 		$result = @file_get_contents('https://stagservices.upol.cz/ws/services/rest/ucitel/getUcitelInfo?outputFormat=JSON&ucitIdno='. $ucitidno);
 		return json_decode($result, true)[0];
 	}
@@ -146,7 +146,7 @@ class Stag
 *     
 *  }
 **/
-	static public function getCoursesForTeacher ($ucitidno, $semester) {
+	public function getCoursesForTeacher ($ucitidno, $semester) {
 		$courses = @file_get_contents('https://stagservices.upol.cz/ws/services/rest/predmety/getPredmetyByUcitel?outputFormat=JSON&ucitIdno='. $ucitidno .'&semestr='. $semester);
 		$result = json_decode($courses, true)[0];
 
@@ -159,9 +159,10 @@ class Stag
 	 * Ziska ze STAGu seznam predmetu studenta podle zadaneho osobniho cisla a semestru (LS / ZS)
 	 *
 	 */
-	static public function getCoursesForStudent ($osobniCislo, $semester)
+	public function getCoursesForStudent ($osobniCislo, $semester)
 	{
 		$courses = @file_get_contents('https://stagservices.upol.cz/ws/services/rest/predmety/getPredmetyByStudent?osCislo='. $osobniCislo .'&semestr='. $semester .'&outputFormat=JSON');
+
 		$result = json_decode($courses, true)[0];
 
 		if (empty($result)) return null;
@@ -173,7 +174,7 @@ class Stag
 	 * Ziska ze STAGu seznam studijnich programu podle fakulty
 	 *
 	 */
-	static public function getPrograms ($faculty = 'PFA')
+	public function getPrograms ($faculty = 'PFA')
 	{
 		$programs = @file_get_contents('https://stagservices.upol.cz/ws/services/rest/programy/getStudijniProgramy?kod=%25&fakulta='. $faculty .'&outputFormat=json');
 		$result = json_decode($programs, true)[0];
@@ -186,7 +187,7 @@ class Stag
 	 * Ziska ze STAGu seznam studijnich oboru podle programu
 	 *
 	 */
-	static public function getFields ($programId)
+	public function getFields ($programId)
 	{
 		$fields = @file_get_contents('https://stagservices.upol.cz/ws/services/rest/programy/getOboryStudijnihoProgramu?outputFormat=json&stprIdno='. $programId);
 		$result = json_decode($fields, true)[0];
@@ -197,37 +198,48 @@ class Stag
 
 
 	/**
-	 * Tests ticket validity
+	 * Processes Stag identities response and determines a role for user
+	 *
+	 * Teacher role for following:
+	 * EP – ECTS koordinátor pracoviště
+	 * FA – Tajemník fakulty
+	 * FR – Fakultní rozvrhář
+	 * KA – Katedra
+	 * PR – Prorektor
+	 * SR – Studijní referentka
+	 * VY – Vyučující
 	 * 
+	 * Student role for following if they study at correct faculty (stagLoginLetter)
+	 * ST – Student
+	 * 
+	 * Other roles and faculties are rejected
+	 *
 	 * @throws Exception - not a valid ticket
-	 * @return 
+	 * @return array
 	 */
-	static public function getStagIdentityByTicket($stagUserTicket, $stagLoginLetter) {
-		$identities = $this->Stag->getIdentityByTicket($stagUserTicket);
-		if ($identities == null) {
-			throw new Exception('Tvoje přihlášení do STAGu již vypršelo. Zkus to prosím znovu.');
-		}
+	public function getIdentity($identities, $stagLoginLetter) {
 
 		$osobniCislo = false;
 		$role = null;
-		$ucitidno = null;
-		foreach ($identities->stagUserInfo as $stagUser) {
-			if ($stagUser->role == 'VY') {
+		$ucitidno = false;
+		foreach ($identities as $stagUser) {
+			if (in_array($stagUser['role'], ['VY', 'EP', 'FA', 'FR', 'KA', 'PR', 'SR'])) {
 				$role = 'VY';
-				$osobniCislo = $stagUser->userName;
-				$ucitidno = $stagUser->ucitIdno;
+				$osobniCislo = $stagUser['userName'];
+				$ucitidno = $stagUser['ucitIdno'];
 				break;
 			}
-			if ($stagUser->role == 'ST') {
-				if (preg_match('/'. $stagLoginLetter .'\d*/', $stagUser->userName)) {
-					$osobniCislo = $stagUser->userName;
+			if ($stagUser['role'] == 'ST') {
+				if (preg_match('/'. $stagLoginLetter .'\d*/', $stagUser['userName'])) {
+					$osobniCislo = $stagUser['userName'];
 					$role = 'ST';
 					break;
 				}
 			}
 		}
 
-		return array('id' => $osobniCislo, 'role' => $role, 'ucitidno' => $ucitidno);
+		if (empty($osobniCislo)) return false;
+		return ['id' => $osobniCislo, 'role' => $role, 'ucitidno' => $ucitidno];
 	}
 
 
