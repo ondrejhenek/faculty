@@ -1,5 +1,7 @@
 <?php
 
+// You can get it from getIndeititiesByTicket or at https://stagservices.upol.cz/ws/services/rest/users/getStagUserListForExternalLogin?outputFormat=json&externalLogin=LOGINXX
+// like sidlja00
 $fixture['getIdentitiesByTicket']['student'] =
 [
 	[
@@ -15,6 +17,41 @@ $fixture['getIdentitiesByTicket']['student'] =
 		'roleNazev' => 'Student',
 		'fakulta' => 'PFA',
 		'aktivni' => 'A',
+	]
+];
+$fixture['getIdentitiesByTicket']['doubleStudent'] =
+[
+	[
+		'userName' => 'P14084',
+		'role' => 'ST',
+		'roleNazev' => 'Student',
+		'fakulta' => 'PFA',
+		'aktivni' => 'A',
+	],
+	[
+		'userName' => 'P13223',
+		'role' => 'ST',
+		'roleNazev' => 'Student',
+		'fakulta' => 'PFA',
+		'aktivni' => 'A',
+	]
+];
+$fixture['getIdentitiesByTicket']['studentTeacher'] =
+[
+	[
+		'userName' => 'P14084',
+		'role' => 'ST',
+		'roleNazev' => 'Student',
+		'fakulta' => 'PFA',
+		'aktivni' => 'A',
+	],
+	[
+		'userName' => 'BUBELOVA',
+		'role' => 'VY',
+		'roleNazev' => 'Vyučující',
+		'katedra' => 'PFA',
+		'katedra' => 'KTP',
+		'ucitIdno' => '1083',
 	]
 ];
 $fixture['getIdentitiesByTicket']['teacher'] =
@@ -85,6 +122,17 @@ $fixture['getCoursesForStudent'] =
 	    'zkratka' => 'MG2',
 	    'nazev' => 'Management 2',
 	    'katedra' => 'KAE',
+	    'rok' => '2015',
+	    'kredity' => 3,
+	]
+];
+
+$fixture['getCoursesForStudentExists'] =
+[
+	[
+	    'zkratka' => 'NÚVOD',
+	    'nazev' => 'Úvod do studia',
+	    'katedra' => 'KPO',
 	    'rok' => '2015',
 	    'kredity' => 3,
 	]

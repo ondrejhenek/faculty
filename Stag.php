@@ -13,7 +13,7 @@ class Stag
 	 * @param string
 	 * @return int
 	 */
-	static public function getAcademicYear($date = null) {
+	public function getAcademicYear($date = null) {
 		$timestamp = !empty($date) ? strtotime($date) : time();
 		return date('Y', $timestamp - 20736000); // 60 * 60 * 24 = 240 days = 28th August
 	}
@@ -24,7 +24,7 @@ class Stag
 	 * @param string
 	 * @return string LS/ZS
 	 */
-	static public function getSemester($date = null) {
+	public function getSemester($date = null) {
 		$timestamp = !empty($date) ? strtotime($date) : time();
 		$day = date('z', $timestamp) + 1;
 		if ($day > 30 && $day < 210) {
@@ -47,7 +47,7 @@ class Stag
 	 */
 	public function sendLogin ($data, $debug = false)
 	{
-		$url = self::loginUrl('http://www.entoo.cz');
+		$url = $this->loginUrl('http://www.entoo.cz');
         $data = array('username' => $data['username'], 'password' => $data['password'], 'submit' => 'Přihlásit se', 'loginMethod' => 'jaas', 'originalURL' => 'http://www.entoo.cz');
 
         $curl = curl_init($url);
@@ -90,7 +90,7 @@ class Stag
 	}
 
 
-	/** 
+	/**
 	*
 	*
 	* returns null if failure
@@ -217,30 +217,34 @@ class Stag
 	 * @throws Exception - not a valid ticket
 	 * @return array
 	 */
-	public function getIdentity($identities, $stagLoginLetter) {
+	public function processIdentities($rawIdentities, $faculty) {
 
-		$osobniCislo = false;
-		$role = null;
-		$ucitidno = false;
-		foreach ($identities as $stagUser) {
-			if (in_array($stagUser['role'], ['VY', 'EP', 'FA', 'FR', 'KA', 'PR', 'SR'])) {
-				$role = 'VY';
-				$osobniCislo = $stagUser['userName'];
-				$ucitidno = $stagUser['ucitIdno'];
-				break;
-			}
-			if ($stagUser['role'] == 'ST') {
-				if (preg_match('/'. $stagLoginLetter .'\d*/', $stagUser['userName'])) {
-					$osobniCislo = $stagUser['userName'];
-					$role = 'ST';
-					break;
+		$identities = [];
+		foreach ($rawIdentities as $identity) {
+			if (in_array($identity['role'], ['VY', 'EP', 'FA', 'FR', 'KA', 'PR', 'SR'])) {
+				// skipping duplicates
+				$existingKey = array_search($identity['ucitIdno'], $rawIdentities);
+				if ($existingKey === false || $rawIdentities[$existingKey]['login'] != $identity['userName']) {
+					$identities[] = [
+						'login' => $identity['userName'],
+						'ucitidno' => $identity['ucitIdno']
+					];
+				}
+			} elseif ($identity['role'] == 'ST') {
+				if ($identity['fakulta'] == $faculty) {
+					$identities[] = [
+						'osobniCislo' => $identity['userName'],
+					];
 				}
 			}
 		}
 
-		if (empty($osobniCislo)) return false;
-		return ['id' => $osobniCislo, 'role' => $role, 'ucitidno' => $ucitidno];
+		// find duplicate identities in teacher
+
+		if (empty($identities)) return false;
+		return $identities;
 	}
+
 
 
 

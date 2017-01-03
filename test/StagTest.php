@@ -62,7 +62,7 @@ class StagTest extends TestCase
     public function testSendLoginSucc()
     {
         if (empty($this->password)) {
-            throw new Exception('User password undefined! Tests depending on ticket won\'t work!');
+            $this->markTestSkipped('User password undefined! Tests depending on ticket won\'t work!');
         }
 
     	$ticket = $this->Stag->sendLogin(['username' => $this->login, 'password' => $this->password]);
@@ -173,38 +173,68 @@ class StagTest extends TestCase
     	$this->assertEmpty($result);
     }
 
-    public function testGetIdentityStudent()
+    public function testProcessIdentitiesStudent()
     {
-        $result = $this->Stag->getIdentity($this->StagFixture['getIdentitiesByTicket']['student'], 'P');
+        $result = $this->Stag->processIdentities($this->StagFixture['getIdentitiesByTicket']['student'], $this->faculty);
 
         $this->assertEquals([
-            'id' => $this->StagFixture['getIdentitiesByTicket']['student'][1]['userName'],
-            'role' => $this->StagFixture['getIdentitiesByTicket']['student'][1]['role'],
-            'ucitidno' => false
+            [
+                'osobniCislo' => $this->StagFixture['getIdentitiesByTicket']['student'][1]['userName'],
+            ]
         ], $result);
     }
 
-    public function testGetIdentityTeacher()
+    public function testProcessIdentitiesDoubleStudent()
     {
-        $result = $this->Stag->getIdentity($this->StagFixture['getIdentitiesByTicket']['teacher'], 'P');
+        $result = $this->Stag->processIdentities($this->StagFixture['getIdentitiesByTicket']['doubleStudent'], $this->faculty);
 
         $this->assertEquals([
-            'id' => $this->StagFixture['getIdentitiesByTicket']['teacher'][0]['userName'],
-            'role' => $this->StagFixture['getIdentitiesByTicket']['teacher'][0]['role'],
-            'ucitidno' => $this->StagFixture['getIdentitiesByTicket']['teacher'][0]['ucitIdno']
+            [
+                'osobniCislo' => $this->StagFixture['getIdentitiesByTicket']['doubleStudent'][0]['userName']
+            ],
+            [
+                'osobniCislo' => $this->StagFixture['getIdentitiesByTicket']['doubleStudent'][1]['userName'],
+            ]
         ], $result);
     }
 
-    public function testGetIdentityAlien()
+    public function testGetIdentitiesStudentTeacher()
     {
-        $result = $this->Stag->getIdentity($this->StagFixture['getIdentitiesByTicket']['alien'], 'P');
+        $result = $this->Stag->processIdentities($this->StagFixture['getIdentitiesByTicket']['studentTeacher'], $this->faculty);
+
+        $this->assertEquals([
+            [
+                'osobniCislo' => $this->StagFixture['getIdentitiesByTicket']['studentTeacher'][0]['userName']
+            ],
+            [
+                'login' => $this->StagFixture['getIdentitiesByTicket']['studentTeacher'][1]['userName'],
+                'ucitidno' => $this->StagFixture['getIdentitiesByTicket']['studentTeacher'][1]['ucitIdno']
+            ]
+        ], $result);
+    }
+
+    public function testProcessIdentitiesTeacher()
+    {
+        $result = $this->Stag->processIdentities($this->StagFixture['getIdentitiesByTicket']['teacher'], $this->faculty);
+
+        $this->assertEquals([
+            [
+                'login' => $this->StagFixture['getIdentitiesByTicket']['teacher'][0]['userName'],
+                'ucitidno' => $this->StagFixture['getIdentitiesByTicket']['teacher'][0]['ucitIdno']
+            ]
+        ], $result);
+    }
+
+    public function testProcessIdentitiesAlien()
+    {
+        $result = $this->Stag->processIdentities($this->StagFixture['getIdentitiesByTicket']['alien'], $this->faculty);
 
         $this->assertEquals(false, $result);
     }
 
-    public function testGetIdentityForeignStudent()
+    public function testProcessIdentitiesForeignStudent()
     {
-        $result = $this->Stag->getIdentity($this->StagFixture['getIdentitiesByTicket']['foreignStudent'], 'P');
+        $result = $this->Stag->processIdentities($this->StagFixture['getIdentitiesByTicket']['foreignStudent'], $this->faculty);
 
         $this->assertEquals(false, $result);
     }
