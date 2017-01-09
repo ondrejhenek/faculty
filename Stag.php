@@ -217,7 +217,7 @@ class Stag
 	 * @throws Exception - not a valid ticket
 	 * @return array
 	 */
-	public function processIdentities($rawIdentities, $faculty) {
+	public function processIdentities($rawIdentities, $faculty = null) {
 
 		$identities = [];
 		foreach ($rawIdentities as $identity) {
@@ -231,7 +231,7 @@ class Stag
 					];
 				}
 			} elseif ($identity['role'] == 'ST') {
-				if ($identity['fakulta'] == $faculty) {
+				if (empty($faculty) || $identity['fakulta'] == $faculty) {
 					$identities[] = [
 						'osobniCislo' => $identity['userName'],
 					];

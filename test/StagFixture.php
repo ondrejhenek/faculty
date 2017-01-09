@@ -76,8 +76,9 @@ $fixture['getIdentitiesByTicket']['alien'] =
 [
 	[
 		'userName' => 'ALIEN',
-		'role' => 'XX',
+		'role' => 'ST',
 		'roleNazev' => 'Alien role',
+		'fakulta' => 'OUTERSPACE'
 	]
 ];
 $fixture['getIdentitiesByTicket']['foreignStudent'] =
