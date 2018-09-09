@@ -1,11 +1,14 @@
 <?php
 namespace Faculty;
 
+// use Cake\Log\LogTrait;
+
 /**
  * Interface between PHP and IS/STAG at Palacky University of Olomouc
  */
 class Stag
 {
+	// use LogTrait;
 
 	/**
 	 * Gives a year number (2012, 2016,...) based on the actual day of the year
@@ -48,7 +51,7 @@ class Stag
 	public function sendLogin ($data, $debug = false)
 	{
 		$url = $this->loginUrl('http://www.entoo.cz');
-        $data = array('username' => $data['username'], 'password' => $data['password'], 'submit' => 'Přihlásit se', 'loginMethod' => 'jaas', 'originalURL' => 'http://www.entoo.cz');
+        $data = array('username' => $data['username'], 'password' => $data['password'], 'submit' => 'Přihlásit se', 'loginMethod' => 'ldap-read-context', 'originalURL' => 'http://www.nastenka.pf.upol.cz');
 
         $curl = curl_init($url);
         curl_setopt($curl, CURLOPT_POST, true);
@@ -66,11 +69,12 @@ class Stag
         curl_close($curl);
         
         if ($debug) {
-	        debug($response);
+	        // $this->log($response, 'debug');
 	        rewind($verbose);
 	        $verboseLog = stream_get_contents($verbose);
-	        echo "Verbose information:\n<pre>", htmlspecialchars($verboseLog), "</pre>\n";
+	        // $this->log(htmlspecialchars($verboseLog), 'debug');
 	    }
+
 
 	    // pokud tam neni redirect s ticketem, tak se to nepovedlo... FALSE!
         $pattern = '/stagUserTicket=(.*?)&/';
