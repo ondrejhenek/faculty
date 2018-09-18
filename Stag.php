@@ -110,7 +110,7 @@ class Stag
 				'method' => 'GET'
 			]
 		];
-		// sends ticket as cookie so server knows... ;)
+		// sends ticket as a cookie
 		if (!empty($ticket)) {
 			$options['http']['header'] = 'Cookie: WSCOOKIE='. $ticket;
 		}
@@ -163,9 +163,19 @@ class Stag
 	 * Ziska ze STAGu seznam predmetu studenta podle zadaneho osobniho cisla a semestru (LS / ZS)
 	 *
 	 */
-	public function getCoursesForStudent ($osobniCislo, $semester)
+	public function getCoursesForStudent ($osobniCislo, $semester, $ticket = null)
 	{
-		$courses = @file_get_contents('https://stagservices.upol.cz/ws/services/rest/predmety/getPredmetyByStudent?osCislo='. $osobniCislo .'&semestr='. $semester .'&outputFormat=JSON');
+		$options = [
+			'http' => [
+				'method' => 'GET'
+			]
+		];
+		// sends ticket as a cookie
+		if (!empty($ticket)) {
+			$options['http']['header'] = 'Cookie: WSCOOKIE='. $ticket;
+		}
+		$context = stream_context_create($options);
+		$courses = @file_get_contents('https://stagservices.upol.cz/ws/services/rest/predmety/getPredmetyByStudent?osCislo='. $osobniCislo .'&semestr='. $semester .'&outputFormat=JSON', false, $context);
 
 		$result = json_decode($courses, true)[0];
 
